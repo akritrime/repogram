@@ -1,4 +1,5 @@
-use rocket::{Rocket};
+use rocket::Rocket;
+use ::root_prefix;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -6,7 +7,7 @@ fn index() -> &'static str {
 }
 
 pub fn routes(rkt: Rocket) -> Rocket {
-    rkt.mount("posts/", routes![index])
+    rkt.mount(&root_prefix("posts/"), routes![index])
 }
 
 #[cfg(test)]

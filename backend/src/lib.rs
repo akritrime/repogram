@@ -5,16 +5,27 @@ extern crate rocket;
 
 mod posts;
 
-#[get("/")]
-fn index<'a>() -> &'a str {
-    "hello, world!"
+macro_rules! pipe {
+    ( $x:expr $( => $func:path )* ) => {
+        {
+            let ret = $x;
+            $(
+                let ret = $func(ret);
+            )*
+            ret
+        }
+    };
+}
+
+pub(crate) fn root_prefix(prefix: &str) -> String {
+    format!("api/{}", prefix)
 }
 
 fn server() -> rocket::Rocket {
-    let rkt = rocket::ignite();
-    let rkt = rkt.mount("api/", routes![index]);
-    let rkt = posts::routes(rkt);
-    rkt
+    pipe! {
+        rocket::ignite()
+        => posts::routes 
+    }
 }
 
 pub fn it_works() -> rocket::error::LaunchError {
